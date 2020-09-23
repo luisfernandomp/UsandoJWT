@@ -2,55 +2,56 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nyous.Contexts;
 using Nyous.Domains;
+using Nyous.Utils;
 
 namespace Nyous.Controllers
 {
-    [Authorize(Roles = "Administrador, Padrao")]
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriaController : ControllerBase
+    public class UsuarioController : ControllerBase
     {
         NyousContext _context = new NyousContext();
 
-        // GET: api/Categoria
+
+        // GET: api/Usuario
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoria()
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuario()
         {
-            return await _context.Categoria.ToListAsync();
+            return await _context.Usuario.ToListAsync();
         }
 
-        // GET: api/Categoria/5
+        // GET: api/Usuario/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Categoria>> GetCategoria(int id)
+        public async Task<ActionResult<Usuario>> GetUsuario(int id)
         {
-            var categoria = await _context.Categoria.FindAsync(id);
+            var usuario = await _context.Usuario.FindAsync(id);
 
-            if (categoria == null)
+            if (usuario == null)
             {
                 return NotFound();
             }
 
-            return categoria;
+            return usuario;
         }
 
-        // PUT: api/Categoria/5
+        // PUT: api/Usuario/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategoria(int id, Categoria categoria)
+        public async Task<IActionResult> PutUsuario(int id, Usuario usuario)
         {
-            if (id != categoria.IdCategoria)
+            if (id != usuario.IdUsuario)
             {
                 return BadRequest();
             }
+            usuario.Senha = Crypto.Criptografar(usuario.Senha, usuario.Email.Substring(0, 4));
 
-            _context.Entry(categoria).State = EntityState.Modified;
+            _context.Entry(usuario).State = EntityState.Modified;
 
             try
             {
@@ -58,7 +59,7 @@ namespace Nyous.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CategoriaExists(id))
+                if (!UsuarioExists(id))
                 {
                     return NotFound();
                 }
@@ -71,37 +72,39 @@ namespace Nyous.Controllers
             return NoContent();
         }
 
-        // POST: api/Categoria
+        // POST: api/Usuario
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Categoria>> PostCategoria(Categoria categoria)
+        public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
         {
-            _context.Categoria.Add(categoria);
+            usuario.Senha = Crypto.Criptografar(usuario.Senha, usuario.Email.Substring(0, 4));
+
+            _context.Usuario.Add(usuario);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCategoria", new { id = categoria.IdCategoria }, categoria);
+            return CreatedAtAction("GetUsuario", new { id = usuario.IdUsuario }, usuario);
         }
 
-        // DELETE: api/Categoria/5
+        // DELETE: api/Usuario/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Categoria>> DeleteCategoria(int id)
+        public async Task<ActionResult<Usuario>> DeleteUsuario(int id)
         {
-            var categoria = await _context.Categoria.FindAsync(id);
-            if (categoria == null)
+            var usuario = await _context.Usuario.FindAsync(id);
+            if (usuario == null)
             {
                 return NotFound();
             }
 
-            _context.Categoria.Remove(categoria);
+            _context.Usuario.Remove(usuario);
             await _context.SaveChangesAsync();
 
-            return categoria;
+            return usuario;
         }
 
-        private bool CategoriaExists(int id)
+        private bool UsuarioExists(int id)
         {
-            return _context.Categoria.Any(e => e.IdCategoria == id);
+            return _context.Usuario.Any(e => e.IdUsuario == id);
         }
     }
 }

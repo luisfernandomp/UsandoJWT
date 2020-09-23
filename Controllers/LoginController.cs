@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Nyous.Contexts;
 using Nyous.Domains;
+using Nyous.Utils;
 
 namespace Nyous.Controllers
 {
@@ -71,7 +72,8 @@ namespace Nyous.Controllers
         [HttpPost]
         public IActionResult Login([FromBody] Usuario login)
         {
-            // Definimos logo de cara como não autorizado
+            login.Senha = Crypto.Criptografar(login.Senha, login.Email.Substring(0, 4));
+        
             IActionResult response = Unauthorized();
 
             // Autenticamos o usuário da API
